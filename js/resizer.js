@@ -111,6 +111,9 @@
       // Координаты задаются от центра холста.
       this._ctx.drawImage(this._image, displX, displY);
 
+      // Отрисовка полупрозрачной рамки
+      this.paintBorder();
+
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
       this._ctx.strokeRect(
@@ -188,6 +191,7 @@
      */
     _onDrag: function(evt) {
       this.updatePosition(evt.clientX, evt.clientY);
+      //this.paintBorder();
     },
 
     /**
@@ -285,6 +289,39 @@
       imageToExport.src = temporaryCanvas.toDataURL('image/png');
 
       return imageToExport;
+    },
+
+    /**
+     * Отрисовка полупрозрачной черной рамки
+     */
+    paintBorder: function() {
+
+      this._ctx.beginPath();
+      
+      // Рисуем в основной прямоугольник
+      this._ctx.moveTo(-this._container.width / 2, -this._container.height / 2);
+      this._ctx.lineTo(this._container.width, -this._container.height / 2);
+      this._ctx.lineTo(this._container.width, this._container.height);
+      this._ctx.lineTo(-this._container.width / 2, this._container.height);
+      this._ctx.lineTo(-this._container.width / 2, -this._container.height / 2);
+
+      // Перемещаем перо и рисуем внутреннюю рамку
+      // Используем "Правило ненулевого направления", чтобы сделать вырез
+      this._ctx.moveTo( (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2, 
+                        (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2);
+      this._ctx.lineTo( (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
+                        (this._resizeConstraint.side / 2) - this._ctx.lineWidth);
+      this._ctx.lineTo( (this._resizeConstraint.side / 2) - this._ctx.lineWidth,
+                        (this._resizeConstraint.side / 2) - this._ctx.lineWidth);
+      this._ctx.lineTo( (this._resizeConstraint.side / 2) - this._ctx.lineWidth,
+                        (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2);
+      this._ctx.lineTo( (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
+                        (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2);
+
+      this._ctx.closePath();
+
+      this._ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+      this._ctx.fill();
     }
   };
 
