@@ -308,7 +308,7 @@
 
       // Перемещаем перо и рисуем внутреннюю рамку
       // Используем "Правило ненулевого направления", чтобы сделать вырез
-      this._ctx.moveTo( (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2, 
+      this._ctx.moveTo( (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
                         (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2);
       this._ctx.lineTo( (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
                         (this._resizeConstraint.side / 2) - this._ctx.lineWidth);
@@ -332,7 +332,7 @@
     textSize: function() {
       this._ctx.fillStyle = 'white';
       // Динамичный размер шрифта для разных изображений
-      this._ctx.font = (this._image.naturalWidth + this._image.naturalHeight) * 0.01 > 20 ? 
+      this._ctx.font = (this._image.naturalWidth + this._image.naturalHeight) * 0.01 > 20 ?
                           (this._image.naturalWidth + this._image.naturalHeight) * 0.01 + 'px sans-serif'
                           : '20px sans-serif';
       this._ctx.textAlign = 'center';
