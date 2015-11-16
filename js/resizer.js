@@ -111,6 +111,9 @@
       // Координаты задаются от центра холста.
       this._ctx.drawImage(this._image, displX, displY);
 
+      // Отрисовка полупрозрачной рамки
+      this.paintBorder();
+
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
       this._ctx.strokeRect(
@@ -118,6 +121,9 @@
           (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
           this._resizeConstraint.side - this._ctx.lineWidth / 2,
           this._resizeConstraint.side - this._ctx.lineWidth / 2);
+
+      // Отображение размеров картинки
+      this.textSize();
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
@@ -285,6 +291,52 @@
       imageToExport.src = temporaryCanvas.toDataURL('image/png');
 
       return imageToExport;
+    },
+
+    /**
+     * Отрисовка полупрозрачной черной рамки
+     */
+    paintBorder: function() {
+      this._ctx.beginPath();
+
+      // Рисуем в основной прямоугольник
+      this._ctx.moveTo(-this._container.width / 2, -this._container.height / 2);
+      this._ctx.lineTo(this._container.width, -this._container.height / 2);
+      this._ctx.lineTo(this._container.width, this._container.height);
+      this._ctx.lineTo(-this._container.width / 2, this._container.height);
+      this._ctx.lineTo(-this._container.width / 2, -this._container.height / 2);
+
+      // Перемещаем перо и рисуем внутреннюю рамку
+      // Используем "Правило ненулевого направления", чтобы сделать вырез
+      this._ctx.moveTo( (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
+                        (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2);
+      this._ctx.lineTo( (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
+                        (this._resizeConstraint.side / 2) - this._ctx.lineWidth);
+      this._ctx.lineTo( (this._resizeConstraint.side / 2) - this._ctx.lineWidth,
+                        (this._resizeConstraint.side / 2) - this._ctx.lineWidth);
+      this._ctx.lineTo( (this._resizeConstraint.side / 2) - this._ctx.lineWidth,
+                        (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2);
+      this._ctx.lineTo( (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
+                        (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2);
+
+      this._ctx.closePath();
+
+      this._ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+      this._ctx.fill();
+    },
+
+
+    /**
+     * Вывод размера загруженной фотографии
+     */
+    textSize: function() {
+      this._ctx.fillStyle = 'white';
+      // Динамичный размер шрифта для разных изображений
+      this._ctx.font = (this._image.naturalWidth + this._image.naturalHeight) * 0.01 > 20 ?
+                          (this._image.naturalWidth + this._image.naturalHeight) * 0.01 + 'px sans-serif'
+                          : '20px sans-serif';
+      this._ctx.textAlign = 'center';
+      this._ctx.fillText(this._image.naturalWidth + ' x ' + this._image.naturalHeight, 0, -(this._resizeConstraint.side / 2) - 20 );
     }
   };
 
