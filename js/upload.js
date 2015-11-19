@@ -72,7 +72,10 @@
    * @return {boolean}
    */
   function resizeFormIsValid() {
-    return true;
+    if ( (+resizeForm['resize-x'].value + +resizeForm['resize-size'].value <= currentResizer._image.naturalWidth) &&
+         (+resizeForm['resize-y'].value + +resizeForm['resize-size'].value <= currentResizer._image.naturalHeight)) {
+      return true;
+    }
   }
 
   /**
@@ -152,8 +155,15 @@
         fileReader.onload = function() {
           cleanupResizer();
 
-          currentResizer = new Resizer(fileReader.result);
+
+          currentResizer = new Resizer(fileReader.result, function(constraint) {
+            // Инициализируем форму
+            resizeForm['resize-x'].value = constraint.x;
+            resizeForm['resize-y'].value = constraint.y;
+            resizeForm['resize-size'].value = constraint.side;
+          });
           currentResizer.setElement(resizeForm);
+
           uploadMessage.classList.add('invisible');
 
           uploadForm.classList.add('invisible');
@@ -178,40 +188,40 @@
   resizeForm.onchange = function(evt) {
     var element = evt.target;
 
-    if (element.name == "x") {
+    if (element.name === 'x') {
       if (+element.value <= 0) {
         element.value = 0;
       } else if (+element.value + currentResizer._resizeConstraint.side <= currentResizer._image.naturalWidth) {
-        currentResizer._resizeConstraint.x = +element.value;
+        currentResizer.setConstraint(+element.value);
       } else {
         element.value = currentResizer._image.naturalWidth - currentResizer._resizeConstraint.side;
       }
     }
 
-    if (element.name == "y") {
+    if (element.name === 'y') {
       if (+element.value <= 0) {
         element.value = 0;
       } else if (+element.value + currentResizer._resizeConstraint.side <= currentResizer._image.naturalHeight) {
-        currentResizer._resizeConstraint.y = +element.value;
+        currentResizer.setConstraint(+resizeForm['resize-x'].value, +element.value);
       } else {
         element.value = currentResizer._image.naturalHeight - currentResizer._resizeConstraint.side;
       }
     }
 
-    if (element.name == "size") {
+    if (element.name === 'size') {
       if (+element.value <= 0) {
         element.value = 0;
-      } else if (+element.value <= Math.min(currentResizer._image.naturalWidth - resizeForm["resize-x"].value,
-                                            currentResizer._image.naturalHeight - resizeForm["resize-y"].value)) {
-        currentResizer._resizeConstraint.side = +element.value;
+      } else if (+element.value <= Math.min(currentResizer._image.naturalWidth - resizeForm['resize-x'].value,
+                                            currentResizer._image.naturalHeight - resizeForm['resize-y'].value)) {
+        currentResizer.setConstraint(+resizeForm['resize-x'].value, +resizeForm['resize-y'].value, +element.value);
       } else {
-        element.value = Math.min(currentResizer._image.naturalWidth - resizeForm["resize-x"].value,
-                                 currentResizer._image.naturalHeight - resizeForm["resize-y"].value);
+        element.value = Math.min(currentResizer._image.naturalWidth - resizeForm['resize-x'].value,
+                                 currentResizer._image.naturalHeight - resizeForm['resize-y'].value);
       }
     }
 
     currentResizer.redraw();
-  }
+  };
 
   /**
    * Обработка сброса формы кадрирования. Возвращает в начальное состояние
