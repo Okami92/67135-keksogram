@@ -72,7 +72,10 @@
    * @return {boolean}
    */
   function resizeFormIsValid() {
-    return true;
+    if ( (+resizeForm['resize-x'].value + +resizeForm['resize-size'].value <= currentResizer._image.naturalWidth) &&
+         (+resizeForm['resize-y'].value + +resizeForm['resize-size'].value <= currentResizer._image.naturalHeight)) {
+      return true;
+    }
   }
 
   /**
@@ -152,8 +155,15 @@
         fileReader.onload = function() {
           cleanupResizer();
 
-          currentResizer = new Resizer(fileReader.result);
+
+          currentResizer = new Resizer(fileReader.result, function(constraint) {
+            // Инициализируем форму
+            resizeForm['resize-x'].value = constraint.x;
+            resizeForm['resize-y'].value = constraint.y;
+            resizeForm['resize-size'].value = constraint.side;
+          });
           currentResizer.setElement(resizeForm);
+
           uploadMessage.classList.add('invisible');
 
           uploadForm.classList.add('invisible');
@@ -169,6 +179,56 @@
         showMessage(Action.ERROR);
       }
     }
+  };
+
+  /**
+   * Обработка изменения формы кадрирования.
+   * @param {Event} evt
+   */
+  resizeForm.onchange = function(evt) {
+    var element = evt.target;
+
+    console.log(currentResizer.getConstraint().side);
+
+    if (element.name === 'x') {
+      if (+element.value <= 0) {
+        element.value = 0;
+        currentResizer.setConstraint(+element.value);
+      } else if (+element.value + currentResizer.getConstraint().side <= currentResizer.getImage().naturalWidth) {
+        currentResizer.setConstraint(+element.value);
+      } else {
+        element.value = currentResizer.getImage().naturalWidth - currentResizer.getConstraint().side;
+        currentResizer.setConstraint(+element.value);
+      }
+    }
+
+    if (element.name === 'y') {
+      if (+element.value <= 0) {
+        element.value = 0;
+        currentResizer.setConstraint(+resizeForm['resize-x'].value, +element.value);
+      } else if (+element.value + currentResizer.getConstraint().side <= currentResizer.getImage().naturalHeight) {
+        currentResizer.setConstraint(+resizeForm['resize-x'].value, +element.value);
+      } else {
+        element.value = currentResizer.getImage().naturalHeight - currentResizer.getConstraint().side;
+        currentResizer.setConstraint(+resizeForm['resize-x'].value, +element.value);
+      }
+    }
+
+    if (element.name === 'size') {
+      if (+element.value <= 0) {
+        element.value = 0;
+        currentResizer.setConstraint(+resizeForm['resize-x'].value, +resizeForm['resize-y'].value, +element.value);
+      } else if (+element.value <= Math.min(currentResizer.getImage().naturalWidth - resizeForm['resize-x'].value,
+                                            currentResizer.getImage().naturalHeight - resizeForm['resize-y'].value)) {
+        currentResizer.setConstraint(+resizeForm['resize-x'].value, +resizeForm['resize-y'].value, +element.value);
+      } else {
+        element.value = Math.min(currentResizer.getImage().naturalWidth - resizeForm['resize-x'].value,
+                                 currentResizer.getImage().naturalHeight - resizeForm['resize-y'].value);
+        currentResizer.setConstraint(+resizeForm['resize-x'].value, +resizeForm['resize-y'].value, +element.value);
+      }
+    }
+
+    currentResizer.redraw();
   };
 
   /**

@@ -5,7 +5,7 @@
    * @constructor
    * @param {FileBuffer}
    */
-  var Resizer = function(image) {
+  var Resizer = function(image, callback) {
     // Изображение, с которым будет вестись работа.
     this._image = new Image();
     this._image.src = image;
@@ -42,6 +42,11 @@
 
       // Отрисовка изначального состояния канваса.
       this.redraw();
+
+      // Вызываем callback
+      if (callback) {
+        callback.apply(this, [this._resizeConstraint]);
+      }
     }.bind(this);
 
     // Фиксирование контекста обработчиков.
@@ -217,6 +222,14 @@
      */
     getConstraint: function() {
       return this._resizeConstraint;
+    },
+
+    /**
+     * Возвращает загруженное изображение.
+     * @return {Image}
+     */
+    getImage: function() {
+      return this._image;
     },
 
     /**
