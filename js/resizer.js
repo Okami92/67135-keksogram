@@ -225,6 +225,14 @@
     },
 
     /**
+     * Возвращает загруженное изображение.
+     * @return {Image}
+     */
+    getImage: function() {
+      return this._image;
+    },
+
+    /**
      * Смещает кадрирование на значение указанное в параметрах.
      * @param {number} deltaX
      * @param {number} deltaY
