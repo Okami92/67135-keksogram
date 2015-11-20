@@ -158,9 +158,9 @@
 
           currentResizer = new Resizer(fileReader.result, function(constraint) {
             // Инициализируем форму
-            resizeForm['resize-x'].value = constraint.x;
-            resizeForm['resize-y'].value = constraint.y;
-            resizeForm['resize-size'].value = constraint.side;
+            resizeForm['resize-x'].value = parseInt(constraint.x, 10);
+            resizeForm['resize-y'].value = parseInt(constraint.y, 10);
+            resizeForm['resize-size'].value = parseInt(constraint.side, 10);
           });
           currentResizer.setElement(resizeForm);
 
@@ -187,8 +187,6 @@
    */
   resizeForm.onchange = function(evt) {
     var element = evt.target;
-
-    console.log(currentResizer.getConstraint().side);
 
     if (element.name === 'x') {
       if (+element.value <= 0) {
@@ -259,6 +257,8 @@
 
       resizeForm.classList.add('invisible');
       filterForm.classList.remove('invisible');
+      filterImage.className = 'filter-image-preview ' + docCookies.getItem('filter');
+      filterForm['upload-' + docCookies.getItem('filter')].setAttribute('checked', 'checked');
     }
   };
 
@@ -286,6 +286,11 @@
 
     filterForm.classList.add('invisible');
     uploadForm.classList.remove('invisible');
+
+    var dateToExpire = +Date.now() + 7 * 24 * 60 * 60 * 1000;
+    var formattedDateToExpire = new Date(dateToExpire).toUTCString();
+
+    document.cookie = 'filter=' + filterImage.className.split(' ')[1] + ';expires=' + formattedDateToExpire;
   };
 
   /**
