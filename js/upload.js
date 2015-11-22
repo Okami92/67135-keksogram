@@ -287,7 +287,19 @@
     filterForm.classList.add('invisible');
     uploadForm.classList.remove('invisible');
 
-    var dateToExpire = +Date.now() + 7 * 24 * 60 * 60 * 1000;
+    // Последний день рождения
+    var lastYearBirthday = new Date().getFullYear();
+    var lastBirthday = new Date(lastYearBirthday, 11, 31);
+
+    // Если в этом году еще не было дня рождения, то уменьшаем год
+    if (lastBirthday > +Date.now()) {
+      lastBirthday.setFullYear(lastYearBirthday - 1);
+    }
+
+    // Подсчитываем дни с прошедшего ДР
+    var daysFromBirthday = +Date.now() - +lastBirthday;
+
+    var dateToExpire = +Date.now() + daysFromBirthday;
     var formattedDateToExpire = new Date(dateToExpire).toUTCString();
 
     document.cookie = 'filter=' + filterImage.className.split(' ')[1] + ';expires=' + formattedDateToExpire;
