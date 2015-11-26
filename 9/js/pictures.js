@@ -48,7 +48,6 @@
    */
   function appearPicture(pic, number) {
     setTimeout(function() {
-      console.log(pic);
       pic.classList.add('picture--show');
     }, number * 30);
   }
