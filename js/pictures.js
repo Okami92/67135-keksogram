@@ -6,6 +6,8 @@
   var activeFilter = 'filter-popular';
   var pictures = [];
 
+
+  var filterForm = document.querySelector('.filters');
   var filters = document.querySelectorAll('.filters-radio');
   for (var i = 0; i < filters.length; i++) {
     filters[i].onclick = function(evt) {
@@ -20,12 +22,12 @@
    * Отрисовка картинок
    * @param  {Array.<Object>} pictures
    */
-  function renderPictures(pictures) {
+  function renderPictures(picturesToRender) {
     container.innerHTML = '';
     var fragment = document.createDocumentFragment();
 
     // Перебираем все элементы в структуре данных
-    pictures.forEach(function(picture) {
+    picturesToRender.forEach(function(picture) {
       var element = getElementFromTemplate(picture);
       // Запихиваем в контейнер DocumentFragment
       fragment.appendChild(element);
@@ -85,10 +87,14 @@
         });
         break;
       case 'filter-new':
+        // Удаляем все фотографии старше одного месяца
+        filteredPictures = filteredPictures.filter(function(pic) {
+          var oneMonthAgo = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
+          return Date.parse(pic.date) > oneMonthAgo.valueOf();
+        });
+
         filteredPictures = filteredPictures.sort(function(pic1, pic2) {
-          var pic1Date = new Date(pic1.date);
-          var pic2Date = new Date(pic2.date);
-          return pic2Date.valueOf() - pic1Date.valueOf();
+          return Date.parse(pic2.date) - Date.parse(pic1.date);
         });
         break;
       case 'filter-discussed':
@@ -157,6 +163,5 @@
   }
 
   // Отображаем фильтр
-  var filters = document.querySelector('.filters');
-  filters.classList.remove('hidden');
+  filterForm.classList.remove('hidden');
 })();
