@@ -340,6 +340,8 @@ input[type=radio]:checked + .upload-filter-label {
   position: relative;
   text-align: center;
   width: 182px;
+  opacity: 0;
+  transition: opacity 500ms ease-out;
 }
 
 .picture img {
@@ -350,6 +352,10 @@ input[type=radio]:checked + .upload-filter-label {
 
 .picture:nth-of-type(2n-1):nth-of-type(-n+6) {
   margin-right: 600px;
+}
+
+.picture--show {
+  opacity: 1;
 }
 
 .picture-load-failure {

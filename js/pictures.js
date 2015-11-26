@@ -33,7 +33,23 @@
       fragment.appendChild(element);
     });
 
+    // Анимируем отрисовку картинок
+    var pics = fragment.querySelectorAll('.picture');
+    for (i = 0; i < pics.length; i++) {
+      appearPicture(pics[i], i);
+    }
+
     container.appendChild(fragment);
+  }
+
+  /**
+   * Добавляем анимацию появления картинок
+   * @param {Array.<Object>} pic
+   */
+  function appearPicture(pic, number) {
+    setTimeout(function() {
+      pic.classList.add('picture--show');
+    }, number * 30);
   }
 
   /**
