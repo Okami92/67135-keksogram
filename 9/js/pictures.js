@@ -159,7 +159,6 @@
     // Обработчик загрузки фотографии
     backgroundImage.onload = function() {
       clearTimeout(imageLoadTimeout);
-      element.style.backgroundImage = 'url(\'' + backgroundImage.src + '\')';
     };
 
     // Обрабатываем ошибку
