@@ -168,7 +168,7 @@
     };
 
     // Добавляем картинку в src
-    backgroundImage.src = '/' + data.url;
+    backgroundImage.src = data.url;
     backgroundImage.setAttribute('width', '182px');
     backgroundImage.setAttribute('height', '182px');
 
