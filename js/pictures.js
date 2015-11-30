@@ -144,10 +144,12 @@
         });
         break;
       case 'filter-new':
-        // Удаляем все фотографии старше одного месяца
+        // Удаляем все фотографии старше трех месяцев
         filteredPictures = filteredPictures.filter(function(pic) {
-          var oneMonthAgo = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
-          return Date.parse(pic.date) > oneMonthAgo.valueOf();
+          var threeMonthAgo = new Date();
+          threeMonthAgo.setMonth(threeMonthAgo.getMonth() - 3);
+          console.log(threeMonthAgo);
+          return Date.parse(pic.date) > threeMonthAgo.valueOf();
         });
 
         filteredPictures = filteredPictures.sort(function(pic1, pic2) {
