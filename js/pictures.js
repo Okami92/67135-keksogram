@@ -3,43 +3,43 @@
 (function() {
   // Контейнер фотографий
   var container = document.querySelector('.pictures');
-  var filterForm = document.querySelector('.filters');
   var activeFilter = 'filter-popular';
   var pictures = []; // Начальный список
   var filteredPictures = []; // Отфильтрованный список
   var currentPage = 0;
   var PAGE_SIZE = 12;
 
-  var filters = document.querySelectorAll('.filters-radio');
-  for (var i = 0; i < filters.length; i++) {
-    filters[i].onclick = function(evt) {
-      var clickedElementID = evt.target.id;
-      setActiveFilter(clickedElementID);
-    };
-  }
+  var filters = document.querySelector('.filters');
+  filters.addEventListener('click', function(evt) {
+    var clickedElement = evt.target;
+    if (clickedElement.getAttribute('name') === 'filter') {
+      setActiveFilter(clickedElement.id);
+    }
+  });
 
   var scrollTimeout;
 
   // Отлавливаем "прокрутку" и подгружаем следующие страницы
-  window.addEventListener('scroll', function(evt) {
+  window.addEventListener('scroll', function() {
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(function() {
       _addPage();
     }, 100);
   });
 
-  // Может сделать свой обработчик?
+  // NB! Может сделать свой обработчик?
   window.addEventListener('load', _addPage);
   window.addEventListener('resize', _addPage);
 
-
-  function _addPage (evt) {
-    var bodyCoordinates = document.querySelector('body').getBoundingClientRect();
+  /**
+   * Обработчик добавления страницы
+   * @param {Event} evt
+   */
+  function _addPage() {
+    var bodyVisualHeight = document.documentElement.offsetHeight;
     var picturesCoordinates = document.querySelector('.pictures').getBoundingClientRect();
-    var viewport = window.innerHeight;
 
-    // NB! Подумать над условием
-    if (picturesCoordinates.height + window.scrollY >= bodyCoordinates.height) {
+    if (picturesCoordinates.height <= bodyVisualHeight + window.scrollY) {
       // Увеличиваем текущую страницу, если мы еще не на последней
       if (currentPage < Math.ceil(filteredPictures.length / PAGE_SIZE)) {
         renderPictures(filteredPictures, ++currentPage);
@@ -76,7 +76,7 @@
 
     // Анимируем отрисовку картинок
     var pics = fragment.querySelectorAll('.picture');
-    for (i = 0; i < pics.length; i++) {
+    for (var i = 0; i < pics.length; i++) {
       appearPicture(pics[i], i);
     }
 
@@ -219,5 +219,5 @@
   }
 
   // Отображаем фильтр
-  filterForm.classList.remove('hidden');
+  filters.classList.remove('hidden');
 })();
