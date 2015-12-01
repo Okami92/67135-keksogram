@@ -4,16 +4,47 @@
   // Контейнер фотографий
   var container = document.querySelector('.pictures');
   var activeFilter = 'filter-popular';
-  var pictures = [];
+  var pictures = []; // Начальный список
+  var filteredPictures = []; // Отфильтрованный список
+  var currentPage = 0;
+  var PAGE_SIZE = 12;
 
+  var filters = document.querySelector('.filters');
+  filters.addEventListener('click', function(evt) {
+    var clickedElement = evt.target;
+    if (clickedElement.getAttribute('name') === 'filter') {
+      setActiveFilter(clickedElement.id);
+    }
+  });
 
-  var filterForm = document.querySelector('.filters');
-  var filters = document.querySelectorAll('.filters-radio');
-  for (var i = 0; i < filters.length; i++) {
-    filters[i].onclick = function(evt) {
-      var clickedElementID = evt.target.id;
-      setActiveFilter(clickedElementID);
-    };
+  var scrollTimeout;
+
+  // Отлавливаем "прокрутку" и подгружаем следующие страницы
+  window.addEventListener('scroll', function() {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(function() {
+      _addPage();
+    }, 100);
+  });
+
+  // NB! Может сделать свой обработчик?
+  window.addEventListener('load', _addPage);
+  window.addEventListener('resize', _addPage);
+
+  /**
+   * Обработчик добавления страницы
+   * @param {Event} evt
+   */
+  function _addPage() {
+    var bodyVisualHeight = document.documentElement.offsetHeight;
+    var picturesCoordinates = document.querySelector('.pictures').getBoundingClientRect();
+
+    if (picturesCoordinates.height <= bodyVisualHeight + window.scrollY) {
+      // Увеличиваем текущую страницу, если мы еще не на последней
+      if (currentPage < Math.ceil(filteredPictures.length / PAGE_SIZE)) {
+        renderPictures(filteredPictures, ++currentPage);
+      }
+    }
   }
 
   getPictures();
@@ -21,13 +52,23 @@
   /**
    * Отрисовка картинок
    * @param  {Array.<Object>} pictures
+   * @param {number} pageNumber
+   * @package {boolean=} replace
    */
-  function renderPictures(picturesToRender) {
-    container.innerHTML = '';
+  function renderPictures(picturesToRender, pageNumber, replace) {
+    if (replace) {
+      container.innerHTML = '';
+    }
+
     var fragment = document.createDocumentFragment();
 
+    // Вырезаем страницу из PAGE_SIZE объектов для отображения
+    var from = pageNumber * PAGE_SIZE;
+    var to = from + PAGE_SIZE;
+    var pagePictures = picturesToRender.slice(from, to);
+
     // Перебираем все элементы в структуре данных
-    picturesToRender.forEach(function(picture) {
+    pagePictures.forEach(function(picture) {
       var element = getElementFromTemplate(picture);
       // Запихиваем в контейнер DocumentFragment
       fragment.appendChild(element);
@@ -35,7 +76,7 @@
 
     // Анимируем отрисовку картинок
     var pics = fragment.querySelectorAll('.picture');
-    for (i = 0; i < pics.length; i++) {
+    for (var i = 0; i < pics.length; i++) {
       appearPicture(pics[i], i);
     }
 
@@ -94,7 +135,7 @@
     }
 
     // Копирование массива
-    var filteredPictures = pictures.slice(0);
+    filteredPictures = pictures.slice(0);
 
     switch (id) {
       case 'filter-popular':
@@ -103,10 +144,12 @@
         });
         break;
       case 'filter-new':
-        // Удаляем все фотографии старше одного месяца
+        // Удаляем все фотографии старше трех месяцев
         filteredPictures = filteredPictures.filter(function(pic) {
-          var oneMonthAgo = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
-          return Date.parse(pic.date) > oneMonthAgo.valueOf();
+          var threeMonthAgo = new Date();
+          threeMonthAgo.setMonth(threeMonthAgo.getMonth() - 3);
+          console.log(threeMonthAgo);
+          return Date.parse(pic.date) > threeMonthAgo.valueOf();
         });
 
         filteredPictures = filteredPictures.sort(function(pic1, pic2) {
@@ -120,7 +163,7 @@
         break;
     }
 
-    renderPictures(filteredPictures);
+    renderPictures(filteredPictures, 0, true);
 
     activeFilter = id;
   }
@@ -178,5 +221,5 @@
   }
 
   // Отображаем фильтр
-  filterForm.classList.remove('hidden');
+  filters.classList.remove('hidden');
 })();
