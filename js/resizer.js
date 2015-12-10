@@ -1,11 +1,18 @@
 'use strict';
 
 (function() {
+
+  /**
+   * Кастомное событие resizerchange
+   * @type {Event}
+   */
+  var customEvent = new CustomEvent('resizerchange');
+
   /**
    * @constructor
    * @param {FileBuffer}
    */
-  var Resizer = function(image, callback) {
+  var Resizer = function(image) {
     // Изображение, с которым будет вестись работа.
     this._image = new Image();
     this._image.src = image;
@@ -42,11 +49,7 @@
 
       // Отрисовка изначального состояния канваса.
       this.redraw();
-
-      // Вызываем callback
-      if (callback) {
-        callback.apply(this, [this._resizeConstraint]);
-      }
+      window.dispatchEvent(customEvent);
     }.bind(this);
 
     // Фиксирование контекста обработчиков.
@@ -199,6 +202,7 @@
      */
     _onDrag: function(evt) {
       this.updatePosition(evt.clientX, evt.clientY);
+      window.dispatchEvent(customEvent);
     },
 
     /**

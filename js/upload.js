@@ -42,17 +42,37 @@
   var currentResizer;
 
   /**
-   * Кастомное событие resizerchange
-   * @type {Event}
+   * Обработчик 'resizerchange'
    */
-  var evt = document.createEvent('CustomEvent');
-  evt.initCustomEvent('resizerchange', false, false, {});
-
   window.addEventListener('resizerchange', function() {
-    // body...
-  });
+    // Фильтр, который не позволяет пользователю вставлять часть картинки, которая
+    // меньше, чем рамка
 
-  window.dispatchEvent(evt);
+    // Условия по X
+    // Левая границы
+    if (currentResizer.getConstraint().x < 0) {
+      currentResizer.setConstraint(0);
+    }
+    // Правая границы
+    if (currentResizer.getConstraint().x > currentResizer.getImage().naturalWidth - currentResizer.getConstraint().side) {
+      currentResizer.setConstraint(currentResizer.getImage().naturalWidth - currentResizer.getConstraint().side);
+    }
+
+    // Условия по Y
+    // Верхняя граница
+    if (currentResizer.getConstraint().y < 0) {
+      currentResizer.setConstraint(currentResizer.getConstraint().x, 0);
+    }
+    // Нижняя границы
+    if (currentResizer.getConstraint().y > currentResizer.getImage().naturalHeight - currentResizer.getConstraint().side) {
+      currentResizer.setConstraint(currentResizer.getConstraint().x, currentResizer.getImage().naturalHeight - currentResizer.getConstraint().side);
+    }
+
+    // Отфильтрованные значения присваиваем форме
+    resizeForm['resize-x'].value = parseInt(currentResizer.getConstraint().x, 10);
+    resizeForm['resize-y'].value = parseInt(currentResizer.getConstraint().y, 10);
+    resizeForm['resize-size'].value = parseInt(currentResizer.getConstraint().side, 10);
+  });
 
   /**
    * Удаляет текущий объект {@link Resizer}, чтобы создать новый с другим
@@ -168,12 +188,7 @@
         fileReader.addEventListener('load', function() {
           cleanupResizer();
 
-          currentResizer = new Resizer(fileReader.result, function(constraint) {
-            // Инициализируем форму
-            resizeForm['resize-x'].value = parseInt(constraint.x, 10);
-            resizeForm['resize-y'].value = parseInt(constraint.y, 10);
-            resizeForm['resize-size'].value = parseInt(constraint.side, 10);
-          });
+          currentResizer = new Resizer(fileReader.result);
           currentResizer.setElement(resizeForm);
 
           uploadMessage.classList.add('invisible');
