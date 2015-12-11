@@ -148,7 +148,6 @@
         filteredPictures = filteredPictures.filter(function(pic) {
           var threeMonthAgo = new Date();
           threeMonthAgo.setMonth(threeMonthAgo.getMonth() - 3);
-          console.log(threeMonthAgo);
           return Date.parse(pic.date) > threeMonthAgo.valueOf();
         });
 

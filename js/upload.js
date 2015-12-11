@@ -42,6 +42,39 @@
   var currentResizer;
 
   /**
+   * Обработчик 'resizerchange'
+   */
+  window.addEventListener('resizerchange', function() {
+    // Фильтр, который не позволяет пользователю вставлять часть картинки, которая
+    // меньше, чем рамка
+
+    // Условия по X
+    // Левая границы
+    if (currentResizer.getConstraint().x < 0) {
+      currentResizer.setConstraint(0);
+    }
+    // Правая границы
+    if (currentResizer.getConstraint().x > currentResizer.getImage().naturalWidth - currentResizer.getConstraint().side) {
+      currentResizer.setConstraint(currentResizer.getImage().naturalWidth - currentResizer.getConstraint().side);
+    }
+
+    // Условия по Y
+    // Верхняя граница
+    if (currentResizer.getConstraint().y < 0) {
+      currentResizer.setConstraint(currentResizer.getConstraint().x, 0);
+    }
+    // Нижняя границы
+    if (currentResizer.getConstraint().y > currentResizer.getImage().naturalHeight - currentResizer.getConstraint().side) {
+      currentResizer.setConstraint(currentResizer.getConstraint().x, currentResizer.getImage().naturalHeight - currentResizer.getConstraint().side);
+    }
+
+    // Отфильтрованные значения присваиваем форме
+    resizeForm['resize-x'].value = parseInt(currentResizer.getConstraint().x, 10);
+    resizeForm['resize-y'].value = parseInt(currentResizer.getConstraint().y, 10);
+    resizeForm['resize-size'].value = parseInt(currentResizer.getConstraint().side, 10);
+  });
+
+  /**
    * Удаляет текущий объект {@link Resizer}, чтобы создать новый с другим
    * изображением.
    */
@@ -72,8 +105,8 @@
    * @return {boolean}
    */
   function resizeFormIsValid() {
-    if ( (+resizeForm['resize-x'].value + +resizeForm['resize-size'].value <= currentResizer._image.naturalWidth) &&
-         (+resizeForm['resize-y'].value + +resizeForm['resize-size'].value <= currentResizer._image.naturalHeight)) {
+    if ((+resizeForm['resize-x'].value + +resizeForm['resize-size'].value <= currentResizer._image.naturalWidth) &&
+      (+resizeForm['resize-y'].value + +resizeForm['resize-size'].value <= currentResizer._image.naturalHeight)) {
       return true;
     }
   }
@@ -142,7 +175,7 @@
    * и показывается форма кадрирования.
    * @param {Event} evt
    */
-  uploadForm.onchange = function(evt) {
+  uploadForm.addEventListener('change', function(evt) {
     var element = evt.target;
     if (element.id === 'upload-file') {
       // Проверка типа загружаемого файла, тип должен быть изображением
@@ -152,16 +185,10 @@
 
         showMessage(Action.UPLOADING);
 
-        fileReader.onload = function() {
+        fileReader.addEventListener('load', function() {
           cleanupResizer();
 
-
-          currentResizer = new Resizer(fileReader.result, function(constraint) {
-            // Инициализируем форму
-            resizeForm['resize-x'].value = parseInt(constraint.x, 10);
-            resizeForm['resize-y'].value = parseInt(constraint.y, 10);
-            resizeForm['resize-size'].value = parseInt(constraint.side, 10);
-          });
+          currentResizer = new Resizer(fileReader.result);
           currentResizer.setElement(resizeForm);
 
           uploadMessage.classList.add('invisible');
@@ -170,7 +197,7 @@
           resizeForm.classList.remove('invisible');
 
           hideMessage();
-        };
+        });
 
         fileReader.readAsDataURL(element.files[0]);
       } else {
@@ -179,13 +206,13 @@
         showMessage(Action.ERROR);
       }
     }
-  };
+  });
 
   /**
    * Обработка изменения формы кадрирования.
    * @param {Event} evt
    */
-  resizeForm.onchange = function(evt) {
+  resizeForm.addEventListener('change', function(evt) {
     var element = evt.target;
 
     if (element.name === 'x') {
@@ -217,24 +244,25 @@
         element.value = 0;
         currentResizer.setConstraint(+resizeForm['resize-x'].value, +resizeForm['resize-y'].value, +element.value);
       } else if (+element.value <= Math.min(currentResizer.getImage().naturalWidth - resizeForm['resize-x'].value,
-                                            currentResizer.getImage().naturalHeight - resizeForm['resize-y'].value)) {
+                 currentResizer.getImage().naturalHeight - resizeForm['resize-y'].value)) {
         currentResizer.setConstraint(+resizeForm['resize-x'].value, +resizeForm['resize-y'].value, +element.value);
       } else {
         element.value = Math.min(currentResizer.getImage().naturalWidth - resizeForm['resize-x'].value,
-                                 currentResizer.getImage().naturalHeight - resizeForm['resize-y'].value);
+                        currentResizer.getImage().naturalHeight - resizeForm['resize-y'].value);
         currentResizer.setConstraint(+resizeForm['resize-x'].value, +resizeForm['resize-y'].value, +element.value);
       }
     }
 
     currentResizer.redraw();
-  };
+  });
 
   /**
    * Обработка сброса формы кадрирования. Возвращает в начальное состояние
    * и обновляет фон.
    * @param {Event} evt
    */
-  resizeForm.onreset = function(evt) {
+
+  resizeForm.addEventListener('reset', function(evt) {
     evt.preventDefault();
 
     cleanupResizer();
@@ -242,14 +270,14 @@
 
     resizeForm.classList.add('invisible');
     uploadForm.classList.remove('invisible');
-  };
+  });
 
   /**
    * Обработка отправки формы кадрирования. Если форма валидна, экспортирует
    * кропнутое изображение в форму добавления фильтра и показывает ее.
    * @param {Event} evt
    */
-  resizeForm.onsubmit = function(evt) {
+  resizeForm.addEventListener('submit', function(evt) {
     evt.preventDefault();
 
     if (resizeFormIsValid()) {
@@ -260,25 +288,25 @@
       filterImage.className = 'filter-image-preview ' + docCookies.getItem('filter');
       filterForm['upload-' + docCookies.getItem('filter')].setAttribute('checked', 'checked');
     }
-  };
+  });
 
   /**
    * Сброс формы фильтра. Показывает форму кадрирования.
    * @param {Event} evt
    */
-  filterForm.onreset = function(evt) {
+  filterForm.addEventListener('reset', function(evt) {
     evt.preventDefault();
 
     filterForm.classList.add('invisible');
     resizeForm.classList.remove('invisible');
-  };
+  });
 
   /**
    * Отправка формы фильтра. Возвращает в начальное состояние, предварительно
    * записав сохраненный фильтр в cookie.
    * @param {Event} evt
    */
-  filterForm.onsubmit = function(evt) {
+  filterForm.addEventListener('submit', function(evt) {
     evt.preventDefault();
 
     cleanupResizer();
@@ -303,13 +331,13 @@
     var formattedDateToExpire = new Date(dateToExpire).toUTCString();
 
     document.cookie = 'filter=' + filterImage.className.split(' ')[1] + ';expires=' + formattedDateToExpire;
-  };
+  });
 
   /**
    * Обработчик изменения фильтра. Добавляет класс из filterMap соответствующий
    * выбранному значению в форме.
    */
-  filterForm.onchange = function() {
+  filterForm.addEventListener('change', function() {
     if (!filterMap) {
       // Ленивая инициализация. Объект не создается до тех пор, пока
       // не понадобится прочитать его в первый раз, а после этого запоминается
@@ -329,7 +357,7 @@
     // убрать предыдущий примененный класс. Для этого нужно или запоминать его
     // состояние или просто перезаписывать.
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
-  };
+  });
 
   cleanupResizer();
   updateBackground();
