@@ -161,7 +161,7 @@
         });
         break;
     }
-
+    currentPage = 0;
     renderPictures(filteredPictures, 0, true);
 
     activeFilter = id;
