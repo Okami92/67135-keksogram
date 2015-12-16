@@ -1,3 +1,5 @@
+'use strict';
+
 (function() {
   /**
    * @constructor
@@ -5,7 +7,7 @@
    */
   function Photo(data) {
     this._data = data;
-  };
+  }
 
   /**
    * Создание фотографии из шаблона

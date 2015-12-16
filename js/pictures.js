@@ -61,7 +61,7 @@
     if (replace) {
       var renderElements = document.querySelectorAll('.picture');
 
-      Array.prototype.forEach.call(renderElements, function(el, i) {
+      Array.prototype.forEach.call(renderElements, function(el) {
         container.removeChild(el);
       });
     }
