@@ -1,4 +1,4 @@
-/* global Photo: true */
+/* global Photo: true, Gallery: true */
 
 'use strict';
 
@@ -10,6 +10,7 @@
   var filteredPictures = []; // Отфильтрованный список
   var currentPage = 0;
   var PAGE_SIZE = 12;
+  var gallery = new Gallery();
 
   var filters = document.querySelector('.filters');
   filters.addEventListener('click', function(evt) {
@@ -62,6 +63,9 @@
       var renderElements = document.querySelectorAll('.picture');
 
       Array.prototype.forEach.call(renderElements, function(el) {
+        // Удаляем обработчик на фотографии
+        el.removeEventListener('click', _onPhotoElementClick);
+        // И саму фотографию
         container.removeChild(el);
       });
     }
@@ -79,6 +83,8 @@
       photoElement.render();
       // Запихиваем в контейнер DocumentFragment
       fragment.appendChild(photoElement.element);
+
+      photoElement.element.addEventListener('click', _onPhotoElementClick);
     });
 
     // Анимируем отрисовку картинок
@@ -88,6 +94,14 @@
     }
 
     container.appendChild(fragment);
+  }
+
+  /**
+   * @param  {Event} evt
+   */
+  function _onPhotoElementClick(evt) {
+    evt.preventDefault();
+    gallery.show();
   }
 
   /**
