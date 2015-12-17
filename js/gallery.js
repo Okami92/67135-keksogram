@@ -9,10 +9,31 @@
     this._closeButton = document.querySelector('.gallery-overlay-close');
     this._photo = document.querySelector('.gallery-overlay-image');
 
-    // Переопределяем контекст обработчика
-    this._onCloseClick = this._onCloseClick.bind(this);
-    this._onPhotoClick = this._onPhotoClick.bind(this);
-    this._onDocumentKeyDown = this._onDocumentKeyDown.bind(this);
+    /**
+     * Обработчик нажатия на крестик
+     */
+    this._onCloseClick = function() {
+      this.hide();
+    }.bind(this);
+
+    /**
+     * Обработчик клика по фотографии
+     */
+    this._onPhotoClick = function() {
+      console.log('Click on photo');
+    };
+
+    /**
+     * Обработчик нажатия на клавиатуру
+     */
+    this._onDocumentKeyDown = function(evt) {
+      console.log('key code: ', evt.keyCode);
+      // Если нажали на Esc
+      if (evt.keyCode === 27) {
+        this.hide();
+      }
+    }.bind(this);
+
   };
 
   /**
@@ -35,31 +56,6 @@
     this._closeButton.removeEventListener('click', this._onCloseClick);
     this._photo.removeEventListener('click', this._onPhotoClick);
     document.removeEventListener('keydown', this._onDocumentKeyDown);
-  };
-
-  /**
-   * Обработчик нажатия на крестик
-   */
-  Gallery.prototype._onCloseClick = function() {
-    this.hide();
-  };
-
-  /**
-   * Обработчик клика по фотографии
-   */
-  Gallery.prototype._onPhotoClick = function() {
-    console.log('Click on photo');
-  };
-
-  /**
-   * Обработчик нажатия на клавиатуру
-   */
-  Gallery.prototype._onDocumentKeyDown = function(evt) {
-    console.log('key code: ', evt.keyCode);
-    // Если нажали на Esc
-    if (evt.keyCode === 27) {
-      this.hide();
-    }
   };
 
   window.Gallery = Gallery;
