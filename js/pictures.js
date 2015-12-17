@@ -1,3 +1,5 @@
+/* global Photo: true, Gallery: true */
+
 'use strict';
 
 (function() {
@@ -8,6 +10,7 @@
   var filteredPictures = []; // Отфильтрованный список
   var currentPage = 0;
   var PAGE_SIZE = 12;
+  var gallery = new Gallery();
 
   var filters = document.querySelector('.filters');
   filters.addEventListener('click', function(evt) {
@@ -57,7 +60,14 @@
    */
   function renderPictures(picturesToRender, pageNumber, replace) {
     if (replace) {
-      container.innerHTML = '';
+      var renderElements = document.querySelectorAll('.picture');
+
+      Array.prototype.forEach.call(renderElements, function(el) {
+        // Удаляем обработчик на фотографии
+        el.removeEventListener('click', _onPhotoElementClick);
+        // И саму фотографию
+        container.removeChild(el);
+      });
     }
 
     var fragment = document.createDocumentFragment();
@@ -69,9 +79,12 @@
 
     // Перебираем все элементы в структуре данных
     pagePictures.forEach(function(picture) {
-      var element = getElementFromTemplate(picture);
+      var photoElement = new Photo(picture);
+      photoElement.render();
       // Запихиваем в контейнер DocumentFragment
-      fragment.appendChild(element);
+      fragment.appendChild(photoElement.element);
+
+      photoElement.element.addEventListener('click', _onPhotoElementClick);
     });
 
     // Анимируем отрисовку картинок
@@ -84,13 +97,21 @@
   }
 
   /**
+   * @param  {Event} evt
+   */
+  function _onPhotoElementClick(evt) {
+    evt.preventDefault();
+    gallery.show();
+  }
+
+  /**
    * Добавляем анимацию появления картинок
    * @param {Array.<Object>} pic
    */
-  function appearPicture(pic, number) {
+  function appearPicture(pic, index) {
     setTimeout(function() {
       pic.classList.add('picture--show');
-    }, number * 30);
+    }, index * 30);
   }
 
   /**
@@ -165,58 +186,6 @@
     renderPictures(filteredPictures, 0, true);
 
     activeFilter = id;
-  }
-
-  /**
-   * Создаем DOM-элемент на основе шаблона
-   * @param  {Object} data
-   * @return {Element}
-   */
-  function getElementFromTemplate(data) {
-    var template = document.querySelector('#picture-template');
-
-    var element;
-    // Улучшаем поддержку для старых IE
-    if ('content' in template) {
-      element = template.content.children[0].cloneNode(true);
-    } else {
-      element = template.children[0].cloneNode(true);
-    }
-
-    // Добавляем информацию о фотографии
-    element.querySelector('.picture-comments').textContent = data.comments;
-    element.querySelector('.picture-likes').textContent = data.likes;
-
-    var backgroundImage = new Image();
-
-    // Время ожидания ответа от сервера
-    var IMAGE_TIMEOUT = 10000;
-
-    // Если сервер не отдал нам картинку
-    var imageLoadTimeout = setTimeout(function() {
-      backgroundImage.src = '';
-      element.classList.add('picture-load-failure');
-    }, IMAGE_TIMEOUT);
-
-    // Обработчик загрузки фотографии
-    backgroundImage.onload = function() {
-      clearTimeout(imageLoadTimeout);
-    };
-
-    // Обрабатываем ошибку
-    backgroundImage.onerror = function() {
-      element.classList.add('picture-load-failure');
-    };
-
-    // Добавляем картинку в src
-    backgroundImage.src = data.url;
-    backgroundImage.setAttribute('width', '182px');
-    backgroundImage.setAttribute('height', '182px');
-
-    // Заменяем img из шаблона на созданный backgroundImage
-    element.replaceChild(backgroundImage, element.children[0]);
-
-    return element;
   }
 
   // Отображаем фильтр
