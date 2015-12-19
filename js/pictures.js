@@ -94,6 +94,7 @@
     }
 
     container.appendChild(fragment);
+    _addPage();
   }
 
   /**
@@ -184,7 +185,6 @@
     }
     currentPage = 0;
     renderPictures(filteredPictures, 0, true);
-
     activeFilter = id;
   }
 
