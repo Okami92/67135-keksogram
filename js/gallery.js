@@ -1,3 +1,7 @@
+/**
+ * Объект Gallery
+ */
+
 'use strict';
 
 (function() {
@@ -5,8 +9,23 @@
    * @constructor
    */
   var Gallery = function() {
+
+    /**
+     * Галерея на странице
+     * @type {Element}
+     */
     this.element = document.querySelector('.gallery-overlay');
+
+    /**
+     * Кнопка-крестик для закрытия галереи
+     * @type {Event}
+     */
     this._closeButton = document.querySelector('.gallery-overlay-close');
+
+    /**
+     * Контейнер для фотографии
+     * @type {Element}
+     */
     this._photo = document.querySelector('.gallery-overlay-image');
 
     /**
@@ -25,6 +44,7 @@
 
     /**
      * Обработчик нажатия на клавиатуру
+     * @param {KeyboardEvent} evt
      */
     this._onDocumentKeyDown = function(evt) {
       console.log('key code: ', evt.keyCode);
@@ -38,6 +58,7 @@
 
   /**
    * Отображение галереи
+   * @method show
    */
   Gallery.prototype.show = function() {
     this.element.classList.remove('invisible');
@@ -50,6 +71,7 @@
 
   /**
    * Скрытие галереи
+   * @method hide
    */
   Gallery.prototype.hide = function() {
     this.element.classList.add('invisible');
