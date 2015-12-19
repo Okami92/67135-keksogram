@@ -7,6 +7,18 @@
    */
   function Photo(data) {
     this._data = data;
+
+    /**
+     * Обработчик клика на фотографии
+     */
+    this._onPhotoClick = function(evt) {
+      evt.preventDefault();
+      if (!this.element.classList.contains('picture-load-failure')) {
+        if (typeof this.onClick === 'function') {
+          this.onClick();
+        }
+      }
+    }.bind(this);
   }
 
   /**
@@ -54,6 +66,16 @@
 
     // Заменяем img из шаблона на созданный backgroundImage
     this.element.replaceChild(backgroundImage, this.element.children[0]);
+
+    // Добавляем обработчик клика на фотографии
+    this.element.addEventListener('click', this._onPhotoClick);
+  };
+
+  /** @type {?Function} */
+  Photo.prototype.onClick = null;
+
+  Photo.prototype.remove = function() {
+    this.element.removeEventListener('click', this._onPhotoClick);
   };
 
   window.Photo = Photo;

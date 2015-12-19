@@ -8,7 +8,13 @@
     this.element = document.querySelector('.gallery-overlay');
     this._closeButton = document.querySelector('.gallery-overlay-close');
     this._photo = document.querySelector('.gallery-overlay-image');
+    this._like = document.querySelector('.gallery-overlay-controls-like');
+    this._comments = document.querySelector('.gallery-overlay-controls-comments');
+    // Список фотографий из json
+    this.pictures = [];
 
+    // Текущая фотография
+    this._currentImage = 0;
     /**
      * Обработчик нажатия на крестик
      */
@@ -20,18 +26,38 @@
      * Обработчик клика по фотографии
      */
     this._onPhotoClick = function() {
-      console.log('Click on photo');
+      if (this.pictures[++this._currentImage]) {
+        this.setCurrentPicture(++this._currentImage);
+      }
     };
 
     /**
      * Обработчик нажатия на клавиатуру
      */
     this._onDocumentKeyDown = function(evt) {
-      console.log('key code: ', evt.keyCode);
       // Если нажали на Esc
       if (evt.keyCode === 27) {
         this.hide();
       }
+      // Стрелочка вправо
+      if (evt.keyCode === 39) {
+        if (this._currentImage === this.pictures.length - 1) {
+          this._currentImage = 0;
+          this.setCurrentPicture(this._currentImage);
+        } else {
+          this.setCurrentPicture(++this._currentImage);
+        }
+      }
+      // Стрелочка влево
+      if (evt.keyCode === 37) {
+        if (this._currentImage === 0) {
+          this._currentImage = this.pictures.length - 1;
+          this.setCurrentPicture(this._currentImage);
+        } else {
+          this.setCurrentPicture(--this._currentImage);
+        }
+      }
+      console.log(this._currentImage);
     }.bind(this);
 
   };
@@ -56,6 +82,30 @@
     this._closeButton.removeEventListener('click', this._onCloseClick);
     this._photo.removeEventListener('click', this._onPhotoClick);
     document.removeEventListener('keydown', this._onDocumentKeyDown);
+  };
+
+  /**
+   * Сохранение массива фотографий из json
+   * @param {Array.<Object>} pictures
+   * @method setPictures
+   */
+  Gallery.prototype.setPictures = function(pictures) {
+    this.pictures = pictures;
+  };
+
+  /**
+   * Отображаем текущую картинку
+   * @param {number} index
+   * @method setCurrentPicture
+   */
+  Gallery.prototype.setCurrentPicture = function(index) {
+    if (index <= this.pictures.length - 1) {
+      this._currentImage = index;
+      var picture = this.pictures[this._currentImage];
+      this._photo.src = picture.url;
+      this._like.querySelector('.likes-count').textContent = picture.likes;
+      this._comments.querySelector('.comments-count').textContent = picture.comments;
+    }
   };
 
   window.Gallery = Gallery;
