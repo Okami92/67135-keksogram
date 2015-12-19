@@ -18,7 +18,7 @@
    * Текущий фильтр
    * @type {String}
    */
-  var activeFilter = 'filter-popular';
+  var activeFilter = localStorage.getItem('filter') || 'filter-popular';
 
   /**
    * Начальный список
@@ -220,6 +220,7 @@
       return;
     }
 
+
     // Копирование массива
     filteredPictures = pictures.slice(0);
 
@@ -251,6 +252,8 @@
     renderPictures(filteredPictures, 0, true);
 
     activeFilter = id;
+    localStorage.setItem('filter', id);
+    filters.querySelector('#' + activeFilter).checked = true;
   }
 
   // Отображаем фильтр
