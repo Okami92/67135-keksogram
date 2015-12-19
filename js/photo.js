@@ -1,3 +1,6 @@
+/**
+ * Объект Photo
+ */
 'use strict';
 
 (function() {
@@ -11,8 +14,25 @@
 
   /**
    * Создание фотографии из шаблона
+   * @method render
    */
   Photo.prototype.render = function() {
+    /**
+     * Размер стороны квадратной картинки
+     * @type {number}
+     */
+    var IMAGE_SIZE = 182;
+
+    /**
+     * Время ожидания отклика от сервера
+     * @type {Number}
+     */
+    var IMAGE_TIMEOUT = 10000;
+
+    /**
+     * Шаблон фотографии
+     * @type {Element}
+     */
     var template = document.querySelector('#picture-template');
 
     // Улучшаем поддержку для старых IE
@@ -26,34 +46,35 @@
     this.element.querySelector('.picture-comments').textContent = this._data.comments;
     this.element.querySelector('.picture-likes').textContent = this._data.likes;
 
-    var backgroundImage = new Image();
+    /**
+     * Картинка
+     * @type {Image}
+     */
+    var blockImage = new Image(IMAGE_SIZE, IMAGE_SIZE);
 
-    // Время ожидания ответа от сервера
-    var IMAGE_TIMEOUT = 10000;
-
-    // Если сервер не отдал нам картинку
+    /**
+     * Таймаут ожидания загрузки картинки
+     */
     var imageLoadTimeout = setTimeout(function() {
-      backgroundImage.src = '';
+      blockImage.src = '';
       this.element.classList.add('picture-load-failure');
     }.bind(this), IMAGE_TIMEOUT);
 
     // Обработчик загрузки фотографии
-    backgroundImage.onload = function() {
+    blockImage.onload = function() {
       clearTimeout(imageLoadTimeout);
     };
 
     // Обрабатываем ошибку
-    backgroundImage.onerror = function() {
+    blockImage.onerror = function() {
       this.element.classList.add('picture-load-failure');
     }.bind(this);
 
     // Добавляем картинку в src
-    backgroundImage.src = this._data.url;
-    backgroundImage.setAttribute('width', '182px');
-    backgroundImage.setAttribute('height', '182px');
+    blockImage.src = this._data.url;
 
-    // Заменяем img из шаблона на созданный backgroundImage
-    this.element.replaceChild(backgroundImage, this.element.children[0]);
+    // Заменяем img из шаблона на созданный blockImage
+    this.element.replaceChild(blockImage, this.element.children[0]);
   };
 
   window.Photo = Photo;
