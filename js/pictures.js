@@ -1,23 +1,92 @@
 /* global Photo: true, Gallery: true */
 
+/**
+ * @fileOverview Модуль получает фотографии с данными из файла data/pictures.json,
+ * затем выводит их на страницу с учетом заданного фильтра.
+ */
+
 'use strict';
 
 (function() {
-  // Контейнер фотографий
+  /**
+   * Контейнер фотографий
+   * @type {HTMLElement}
+   */
   var container = document.querySelector('.pictures');
+
+  /**
+   * Текущий фильтр
+   * @type {String}
+   */
   var activeFilter = 'filter-popular';
-  var pictures = []; // Начальный список
-  var filteredPictures = []; // Отфильтрованный список
+
   /**
    * Отфильтрованные фотографии
    * @type {Array}
    */
   var renderElements = [];
+
+  /**
+   * Начальный список
+   * @type {Array}
+   */
+  var pictures = [];
+
+  /**
+   * Отфильтрованный список
+   * @type {Array}
+   */
+  var filteredPictures = [];
+
+  /**
+   * Текущая страница
+   * @type {Number}
+   */
   var currentPage = 0;
+
+  /**
+   * Кол-во фотографий на одну страницу
+   * @type {Number}
+   */
   var PAGE_SIZE = 12;
+
+  /**
+   * Создание галереи
+   * @type {Gallery}
+   */
   var gallery = new Gallery();
 
+  /**
+   * Блок с фильтрами
+   * @type {HTMLElement}
+   */
   var filters = document.querySelector('.filters');
+
+  /**
+   * Таймаут прокрутки
+   */
+  var scrollTimeout;
+
+  /**
+   * Время таймаута на скролле
+   * @type {Number}
+   */
+  var SCROLL_TIMEOUT = 100;
+
+  /**
+   * Время через которое показываются фотографии
+   * @type {Number}
+   */
+  var APPEAR_TIMEOUT = 30;
+
+
+  /** Получение фотографий */
+  getPictures();
+
+  /**
+   * Обработчик клика по блоку с фильтрами
+   * @param  {MouseEvent} evt
+   */
   filters.addEventListener('click', function(evt) {
     var clickedElement = evt.target;
     if (clickedElement.getAttribute('name') === 'filter') {
@@ -25,17 +94,15 @@
     }
   });
 
-  var scrollTimeout;
-
   // Отлавливаем "прокрутку" и подгружаем следующие страницы
   window.addEventListener('scroll', function() {
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(function() {
       _addPage();
-    }, 100);
+    }, SCROLL_TIMEOUT);
   });
 
-  // NB! Может сделать свой обработчик?
+  // При загрузке и изменении размеров сайта запускаем обработчик добавления страницы
   window.addEventListener('load', _addPage);
   window.addEventListener('resize', _addPage);
 
@@ -55,8 +122,6 @@
       }
     }
   }
-
-  getPictures();
 
   /**
    * Отрисовка картинок
@@ -109,11 +174,12 @@
   /**
    * Добавляем анимацию появления картинок
    * @param {Array.<Object>} pic
+   * @param {number} index
    */
   function appearPicture(pic, index) {
     setTimeout(function() {
       pic.classList.add('picture--show');
-    }, index * 30);
+    }, index * APPEAR_TIMEOUT);
   }
 
   /**

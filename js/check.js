@@ -1,3 +1,9 @@
+/**
+ * Отправка сообщения о типе изображения
+ * @param  {boolean|number|Array} imageType Тип изображения
+ * @param  {number|Array} [imageCount] Характеристика изображения
+ * @return {string}
+ */
 function getMessage(imageType, imageCount) {
   if (typeof imageType == "boolean") {
     if (imageType == true) {
