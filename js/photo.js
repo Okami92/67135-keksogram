@@ -1,9 +1,11 @@
+/* global define: true */
+
 /**
  * Объект Photo
  */
 'use strict';
 
-(function() {
+define(function() {
   /**
    * @constructor
    * @param {Object} data
@@ -76,5 +78,5 @@
     this.element.replaceChild(blockImage, this.element.children[0]);
   };
 
-  window.Photo = Photo;
-})();
+  return Photo;
+});

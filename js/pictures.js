@@ -1,4 +1,4 @@
-/* global Photo: true, Gallery: true */
+/* global requirejs: true, define: true */
 
 /**
  * @fileOverview Модуль получает фотографии с данными из файла data/pictures.json,
@@ -7,7 +7,16 @@
 
 'use strict';
 
-(function() {
+requirejs.config({
+  baseUrl: 'js'
+});
+
+define([
+  'photo',
+  'gallery',
+  'resizer',
+  'upload'
+], function(Photo, Gallery) {
   /**
    * Контейнер фотографий
    * @type {HTMLElement}
@@ -258,4 +267,4 @@
 
   // Отображаем фильтр
   filters.classList.remove('hidden');
-})();
+});
