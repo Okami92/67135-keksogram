@@ -114,7 +114,6 @@
     var bodyVisualHeight = document.documentElement.offsetHeight;
     var picturesCoordinates = document.querySelector('.pictures').getBoundingClientRect();
 
-    console.log(picturesCoordinates.height, bodyVisualHeight, window.scrollY, bodyVisualHeight + window.scrollY);
     if (picturesCoordinates.height <= bodyVisualHeight + window.scrollY) {
       // Увеличиваем текущую страницу, если мы еще не на последней
       if (currentPage < Math.ceil(filteredPictures.length / PAGE_SIZE)) {

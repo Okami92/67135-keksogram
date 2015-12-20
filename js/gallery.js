@@ -29,11 +29,19 @@
     this._photo = document.querySelector('.gallery-overlay-image');
     this._like = document.querySelector('.gallery-overlay-controls-like');
     this._comments = document.querySelector('.gallery-overlay-controls-comments');
-    // Список фотографий из json
+
+    /**
+     * Список фотографий из json
+     * @type {Array}
+     */
     this.pictures = [];
 
-    // Текущая фотография
+    /**
+     * Текущая фотография
+     * @type {Number}
+     */
     this._currentImage = 0;
+
     /**
      * Обработчик нажатия на крестик
      */
@@ -45,10 +53,13 @@
      * Обработчик клика по фотографии
      */
     this._onPhotoClick = function() {
-      if (this.pictures[++this._currentImage]) {
+      if (this.pictures[this._currentImage + 1]) {
         this.setCurrentPicture(++this._currentImage);
+      } else {
+        this._currentImage = 0;
+        this.setCurrentPicture(this._currentImage);
       }
-    };
+    }.bind(this);
 
     /**
      * Обработчик нажатия на клавиатуру
@@ -77,7 +88,6 @@
           this.setCurrentPicture(--this._currentImage);
         }
       }
-      console.log(this._currentImage);
     }.bind(this);
 
   };
