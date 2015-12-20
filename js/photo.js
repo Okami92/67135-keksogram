@@ -14,7 +14,6 @@
 
   /**
    * Создание фотографии из шаблона
-   * @method render
    */
   Photo.prototype.render = function() {
     /**
