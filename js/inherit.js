@@ -4,18 +4,20 @@
 
 'use strict';
 
-/**
- * Принимаем объекты Child и Parent и присваиваем объекту Child
- * все свойства и методы объекта Parent
- * @param  {Object} child
- * @param  {Object} parent
- */
-function inherit(Child, Parent) {
-  /** @constructor */
-  var EmptyConstructor = function() {};
-  EmptyConstructor.prototype = Parent.prototype;
-  Child.prototype = new EmptyConstructor();
-}
+(function() {
+  /**
+   * Принимаем объекты Child и Parent и присваиваем объекту Child
+   * все свойства и методы объекта Parent
+   * @constructor
+   * @param  {Object} child
+   * @param  {Object} parent
+   */
+  var inherit = function(Child, Parent) {
+    /** @constructor */
+    var EmptyConstructor = function() {};
+    EmptyConstructor.prototype = Parent.prototype;
+    Child.prototype = new EmptyConstructor();
+  };
 
-// Чтоб ESLint не ругался
-inherit();
+  window.inherit = inherit;
+})();
