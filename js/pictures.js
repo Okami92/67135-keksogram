@@ -120,7 +120,7 @@
    * Отрисовка картинок
    * @param  {Array.<Object>} pictures
    * @param {number} pageNumber
-   * @package {boolean=} replace
+   * @param {boolean=} replace
    */
   function renderPictures(picturesToRender, pageNumber, replace) {
     if (replace) {
