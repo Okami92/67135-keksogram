@@ -44,6 +44,7 @@
 
     /**
      * Обработчик нажатия на крестик
+     * @private
      */
     this._onCloseClick = function() {
       this.hide();
@@ -51,6 +52,7 @@
 
     /**
      * Обработчик клика по фотографии
+     * @private
      */
     this._onPhotoClick = function() {
       if (this.pictures[this._currentImage + 1]) {
@@ -64,6 +66,7 @@
     /**
      * Обработчик нажатия на клавиатуру
      * @param {KeyboardEvent} evt
+     * @private
      */
     this._onDocumentKeyDown = function(evt) {
       // Если нажали на Esc
@@ -94,7 +97,6 @@
 
   /**
    * Отображение галереи
-   * @method show
    */
   Gallery.prototype.show = function() {
     this.element.classList.remove('invisible');
@@ -107,7 +109,6 @@
 
   /**
    * Скрытие галереи
-   * @method hide
    */
   Gallery.prototype.hide = function() {
     this.element.classList.add('invisible');

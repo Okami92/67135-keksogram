@@ -18,7 +18,7 @@
    * Текущий фильтр
    * @type {String}
    */
-  var activeFilter = 'filter-popular';
+  var activeFilter = localStorage.getItem('filter') || 'filter-popular';
 
   /**
    * Отфильтрованные фотографии
@@ -126,7 +126,7 @@
    * Отрисовка картинок
    * @param  {Array.<Object>} pictures
    * @param {number} pageNumber
-   * @package {boolean=} replace
+   * @param {boolean=} replace
    */
   function renderPictures(picturesToRender, pageNumber, replace) {
     if (replace) {
@@ -222,6 +222,7 @@
       return;
     }
 
+
     // Копирование массива
     filteredPictures = pictures.slice(0);
 
@@ -253,6 +254,8 @@
     gallery.setPictures(filteredPictures);
     renderPictures(filteredPictures, 0, true);
     activeFilter = id;
+    localStorage.setItem('filter', id);
+    filters.querySelector('#' + activeFilter).checked = true;
   }
 
   // Отображаем фильтр
