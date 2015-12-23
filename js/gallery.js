@@ -1,10 +1,12 @@
+/* global define: true */
+
 /**
  * Объект Gallery
  */
 
 'use strict';
 
-(function() {
+define(function() {
   /**
    * @constructor
    */
@@ -81,5 +83,5 @@
     document.removeEventListener('keydown', this._onDocumentKeyDown);
   };
 
-  window.Gallery = Gallery;
-})();
+  return Gallery;
+});
