@@ -30,6 +30,12 @@ define([
   var activeFilter = localStorage.getItem('filter') || 'filter-popular';
 
   /**
+   * Отфильтрованные фотографии
+   * @type {Array}
+   */
+  var renderElements = [];
+
+  /**
    * Начальный список
    * @type {Array}
    */
@@ -133,14 +139,12 @@ define([
    */
   function renderPictures(picturesToRender, pageNumber, replace) {
     if (replace) {
-      var renderElements = document.querySelectorAll('.picture');
-
-      Array.prototype.forEach.call(renderElements, function(el) {
-        // Удаляем обработчик на фотографии
-        el.removeEventListener('click', _onPhotoElementClick);
-        // И саму фотографию
-        container.removeChild(el);
-      });
+      var el;
+      while ((el = renderElements.shift())) {
+        container.removeChild(el.element);
+        el.onClick = null;
+        el.remove();
+      }
     }
 
     var fragment = document.createDocumentFragment();
@@ -150,15 +154,21 @@ define([
     var to = from + PAGE_SIZE;
     var pagePictures = picturesToRender.slice(from, to);
 
-    // Перебираем все элементы в структуре данных
-    pagePictures.forEach(function(picture) {
+    renderElements = renderElements.concat(pagePictures.map(function(picture, index) {
       var photoElement = new Photo(picture);
       photoElement.render();
       // Запихиваем в контейнер DocumentFragment
       fragment.appendChild(photoElement.element);
 
-      photoElement.element.addEventListener('click', _onPhotoElementClick);
-    });
+      photoElement.onClick = function() {
+        gallery.data = photoElement._data;
+        // Надо сюда вставить значение нажатой фотографии
+        gallery.setCurrentPicture(index + PAGE_SIZE * pageNumber);
+        gallery.show();
+      };
+
+      return photoElement;
+    }));
 
     // Анимируем отрисовку картинок
     var pics = fragment.querySelectorAll('.picture');
@@ -167,14 +177,6 @@ define([
     }
 
     container.appendChild(fragment);
-  }
-
-  /**
-   * @param  {Event} evt
-   */
-  function _onPhotoElementClick(evt) {
-    evt.preventDefault();
-    gallery.show();
   }
 
   /**
@@ -258,8 +260,8 @@ define([
         break;
     }
 
+    gallery.setPictures(filteredPictures);
     renderPictures(filteredPictures, 0, true);
-
     activeFilter = id;
     localStorage.setItem('filter', id);
     filters.querySelector('#' + activeFilter).checked = true;
