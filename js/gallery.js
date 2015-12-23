@@ -1,10 +1,12 @@
+/* global define: true */
+
 /**
  * Объект Gallery
  */
 
 'use strict';
 
-(function() {
+define(function() {
   /**
    * @constructor
    */
@@ -141,5 +143,5 @@
     }
   };
 
-  window.Gallery = Gallery;
-})();
+  return Gallery;
+});
