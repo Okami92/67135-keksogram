@@ -164,6 +164,9 @@
     return uploadMessage;
   }
 
+  /**
+   * Скрытие сообщения
+   */
   function hideMessage() {
     uploadMessage.classList.add('invisible');
   }
@@ -261,7 +264,6 @@
    * и обновляет фон.
    * @param {Event} evt
    */
-
   resizeForm.addEventListener('reset', function(evt) {
     evt.preventDefault();
 

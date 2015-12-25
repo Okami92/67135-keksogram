@@ -1,18 +1,101 @@
-/* global Photo: true, Gallery: true */
+/* global requirejs: true, define: true */
+
+/**
+ * @fileOverview Модуль получает фотографии с данными из файла data/pictures.json,
+ * затем выводит их на страницу с учетом заданного фильтра.
+ */
 
 'use strict';
 
-(function() {
-  // Контейнер фотографий
+requirejs.config({
+  baseUrl: 'js'
+});
+
+define([
+  'photo',
+  'gallery',
+  'resizer',
+  'upload'
+], function(Photo, Gallery) {
+  /**
+   * Контейнер фотографий
+   * @type {HTMLElement}
+   */
   var container = document.querySelector('.pictures');
-  var activeFilter = 'filter-popular';
-  var pictures = []; // Начальный список
-  var filteredPictures = []; // Отфильтрованный список
+
+  /**
+   * Текущий фильтр
+   * @type {String}
+   */
+  var activeFilter = localStorage.getItem('filter') || 'filter-popular';
+
+  /**
+   * Отфильтрованные фотографии
+   * @type {Array}
+   */
+  var renderElements = [];
+
+  /**
+   * Начальный список
+   * @type {Array}
+   */
+  var pictures = [];
+
+  /**
+   * Отфильтрованный список
+   * @type {Array}
+   */
+  var filteredPictures = [];
+
+  /**
+   * Текущая страница
+   * @type {Number}
+   */
   var currentPage = 0;
+
+  /**
+   * Кол-во фотографий на одну страницу
+   * @type {Number}
+   */
   var PAGE_SIZE = 12;
+
+  /**
+   * Создание галереи
+   * @type {Gallery}
+   */
   var gallery = new Gallery();
 
+  /**
+   * Блок с фильтрами
+   * @type {HTMLElement}
+   */
   var filters = document.querySelector('.filters');
+
+  /**
+   * Таймаут прокрутки
+   */
+  var scrollTimeout;
+
+  /**
+   * Время таймаута на скролле
+   * @type {Number}
+   */
+  var SCROLL_TIMEOUT = 100;
+
+  /**
+   * Время через которое показываются фотографии
+   * @type {Number}
+   */
+  var APPEAR_TIMEOUT = 30;
+
+
+  /** Получение фотографий */
+  getPictures();
+
+  /**
+   * Обработчик клика по блоку с фильтрами
+   * @param  {MouseEvent} evt
+   */
   filters.addEventListener('click', function(evt) {
     var clickedElement = evt.target;
     if (clickedElement.getAttribute('name') === 'filter') {
@@ -20,17 +103,15 @@
     }
   });
 
-  var scrollTimeout;
-
   // Отлавливаем "прокрутку" и подгружаем следующие страницы
   window.addEventListener('scroll', function() {
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(function() {
       _addPage();
-    }, 100);
+    }, SCROLL_TIMEOUT);
   });
 
-  // NB! Может сделать свой обработчик?
+  // При загрузке и изменении размеров сайта запускаем обработчик добавления страницы
   window.addEventListener('load', _addPage);
   window.addEventListener('resize', _addPage);
 
@@ -50,24 +131,44 @@
     }
   }
 
-  getPictures();
+  /**
+   * Добавляем обработчик, который будет показывать или прятать галерею
+   * на определенной фотографии в зависимости от содержимого хэша
+   */
+  window.addEventListener('hashchange', _onHashChange);
+
+  /**
+   * Функция-обработчик hash
+   */
+  function _onHashChange() {
+    var hash = location.hash.match(/#photo\/(\S+)/);
+    if (hash && hash instanceof Array) {
+      if (gallery.setCurrentPicture(hash[1]) !== -1) {
+        gallery.show();
+      } else {
+        history.pushState('', document.title, window.location.pathname);
+        gallery.hide();
+      }
+    } else {
+      history.pushState('', document.title, window.location.pathname);
+      gallery.hide();
+    }
+  }
 
   /**
    * Отрисовка картинок
    * @param  {Array.<Object>} pictures
    * @param {number} pageNumber
-   * @package {boolean=} replace
+   * @param {boolean=} replace
    */
   function renderPictures(picturesToRender, pageNumber, replace) {
     if (replace) {
-      var renderElements = document.querySelectorAll('.picture');
-
-      Array.prototype.forEach.call(renderElements, function(el) {
-        // Удаляем обработчик на фотографии
-        el.removeEventListener('click', _onPhotoElementClick);
-        // И саму фотографию
-        container.removeChild(el);
-      });
+      var el;
+      while ((el = renderElements.shift())) {
+        container.removeChild(el.element);
+        el.onClick = null;
+        el.remove();
+      }
     }
 
     var fragment = document.createDocumentFragment();
@@ -77,15 +178,22 @@
     var to = from + PAGE_SIZE;
     var pagePictures = picturesToRender.slice(from, to);
 
-    // Перебираем все элементы в структуре данных
-    pagePictures.forEach(function(picture) {
+    renderElements = renderElements.concat(pagePictures.map(function(picture, index) {
       var photoElement = new Photo(picture);
       photoElement.render();
       // Запихиваем в контейнер DocumentFragment
       fragment.appendChild(photoElement.element);
 
-      photoElement.element.addEventListener('click', _onPhotoElementClick);
-    });
+      photoElement.onClick = function() {
+        location.hash = 'photo/' + photoElement._data.url;
+        gallery.data = photoElement._data;
+        // Надо сюда вставить значение нажатой фотографии
+        gallery.setCurrentPicture(index + PAGE_SIZE * pageNumber);
+        gallery.show();
+      };
+
+      return photoElement;
+    }));
 
     // Анимируем отрисовку картинок
     var pics = fragment.querySelectorAll('.picture');
@@ -98,21 +206,14 @@
   }
 
   /**
-   * @param  {Event} evt
-   */
-  function _onPhotoElementClick(evt) {
-    evt.preventDefault();
-    gallery.show();
-  }
-
-  /**
    * Добавляем анимацию появления картинок
    * @param {Array.<Object>} pic
+   * @param {number} index
    */
   function appearPicture(pic, index) {
     setTimeout(function() {
       pic.classList.add('picture--show');
-    }, index * 30);
+    }, index * APPEAR_TIMEOUT);
   }
 
   /**
@@ -156,6 +257,7 @@
       return;
     }
 
+
     // Копирование массива
     filteredPictures = pictures.slice(0);
 
@@ -183,11 +285,15 @@
         });
         break;
     }
+
     currentPage = 0;
+    gallery.setPictures(filteredPictures);
     renderPictures(filteredPictures, 0, true);
     activeFilter = id;
+    localStorage.setItem('filter', id);
+    filters.querySelector('#' + activeFilter).checked = true;
   }
 
   // Отображаем фильтр
   filters.classList.remove('hidden');
-})();
+});

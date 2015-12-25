@@ -1,18 +1,51 @@
+/* global define: true */
+
+/**
+ * Объект Photo
+ */
 'use strict';
 
-(function() {
+define(function() {
   /**
    * @constructor
    * @param {Object} data
    */
   function Photo(data) {
     this._data = data;
+
+    /**
+     * Обработчик клика на фотографии
+     */
+    this._onPhotoClick = function(evt) {
+      evt.preventDefault();
+      if (!this.element.classList.contains('picture-load-failure')) {
+        if (typeof this.onClick === 'function') {
+          this.onClick();
+        }
+      }
+    }.bind(this);
   }
 
   /**
    * Создание фотографии из шаблона
    */
   Photo.prototype.render = function() {
+    /**
+     * Размер стороны квадратной картинки
+     * @type {number}
+     */
+    var IMAGE_SIZE = 182;
+
+    /**
+     * Время ожидания отклика от сервера
+     * @type {Number}
+     */
+    var IMAGE_TIMEOUT = 10000;
+
+    /**
+     * Шаблон фотографии
+     * @type {Element}
+     */
     var template = document.querySelector('#picture-template');
 
     // Улучшаем поддержку для старых IE
@@ -26,35 +59,46 @@
     this.element.querySelector('.picture-comments').textContent = this._data.comments;
     this.element.querySelector('.picture-likes').textContent = this._data.likes;
 
-    var backgroundImage = new Image();
+    /**
+     * Картинка
+     * @type {Image}
+     */
+    var blockImage = new Image(IMAGE_SIZE, IMAGE_SIZE);
 
-    // Время ожидания ответа от сервера
-    var IMAGE_TIMEOUT = 10000;
-
-    // Если сервер не отдал нам картинку
+    /**
+     * Таймаут ожидания загрузки картинки
+     */
     var imageLoadTimeout = setTimeout(function() {
-      backgroundImage.src = '';
+      blockImage.src = '';
       this.element.classList.add('picture-load-failure');
     }.bind(this), IMAGE_TIMEOUT);
 
     // Обработчик загрузки фотографии
-    backgroundImage.onload = function() {
+    blockImage.onload = function() {
       clearTimeout(imageLoadTimeout);
     };
 
     // Обрабатываем ошибку
-    backgroundImage.onerror = function() {
+    blockImage.onerror = function() {
       this.element.classList.add('picture-load-failure');
     }.bind(this);
 
     // Добавляем картинку в src
-    backgroundImage.src = this._data.url;
-    backgroundImage.setAttribute('width', '182px');
-    backgroundImage.setAttribute('height', '182px');
+    blockImage.src = this._data.url;
 
-    // Заменяем img из шаблона на созданный backgroundImage
-    this.element.replaceChild(backgroundImage, this.element.children[0]);
+    // Заменяем img из шаблона на созданный blockImage
+    this.element.replaceChild(blockImage, this.element.children[0]);
+
+    // Добавляем обработчик клика на фотографии
+    this.element.addEventListener('click', this._onPhotoClick);
   };
 
-  window.Photo = Photo;
-})();
+  /** @type {?Function} */
+  Photo.prototype.onClick = null;
+
+  Photo.prototype.remove = function() {
+    this.element.removeEventListener('click', this._onPhotoClick);
+  };
+
+  return Photo;
+});

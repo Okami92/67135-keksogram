@@ -9,7 +9,7 @@
 <body>
 
 <form class="filters hidden" action="index.html" method="get">
-  <input type="radio" id="filter-popular" class="filters-radio" name="filter" value="popular" checked>
+  <input type="radio" id="filter-popular" class="filters-radio" name="filter" value="popular">
   <label for="filter-popular" class="filters-item">Популярные</label>
 
   <input type="radio" id="filter-new" class="filters-radio" name="filter" value="new">
@@ -89,10 +89,6 @@
 </template>
 
 <script src="lib/cookies.js"></script>
-<script src="js/gallery.js"></script>
-<script src="js/photo.js"></script>
-<script src="js/pictures.js"></script>
-<script src="js/resizer.js"></script>
-<script src="js/upload.js"></script>
+<script src="lib/require.js" data-main="js/pictures"></script>
 </body>
 </html>
