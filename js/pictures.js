@@ -132,6 +132,30 @@ define([
   }
 
   /**
+   * Добавляем обработчик, который будет показывать или прятать галерею
+   * на определенной фотографии в зависимости от содержимого хэша
+   */
+  window.addEventListener('hashchange', _onHashChange);
+
+  /**
+   * Функция-обработчик hash
+   */
+  function _onHashChange() {
+    var hash = location.hash.match(/#photo\/(\S+)/);
+    if (hash && hash instanceof Array) {
+      if (gallery.setCurrentPicture(hash[1]) !== -1) {
+        gallery.show();
+      } else {
+        history.pushState('', document.title, window.location.pathname);
+        gallery.hide();
+      }
+    } else {
+      history.pushState('', document.title, window.location.pathname);
+      gallery.hide();
+    }
+  }
+
+  /**
    * Отрисовка картинок
    * @param  {Array.<Object>} pictures
    * @param {number} pageNumber
@@ -161,6 +185,7 @@ define([
       fragment.appendChild(photoElement.element);
 
       photoElement.onClick = function() {
+        location.hash = 'photo/' + photoElement._data.url;
         gallery.data = photoElement._data;
         // Надо сюда вставить значение нажатой фотографии
         gallery.setCurrentPicture(index + PAGE_SIZE * pageNumber);
@@ -177,6 +202,7 @@ define([
     }
 
     container.appendChild(fragment);
+    _onHashChange();
   }
 
   /**
