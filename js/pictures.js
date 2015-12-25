@@ -143,8 +143,12 @@ define([
   function _onHashChange() {
     var hash = location.hash.match(/#photo\/(\S+)/);
     if (hash && hash instanceof Array) {
-      gallery.setCurrentPicture(hash[1]);
-      gallery.show();
+      if (gallery.setCurrentPicture(hash[1]) !== -1) {
+        gallery.show();
+      } else {
+        history.pushState('', document.title, window.location.pathname);
+        gallery.hide();
+      }
     } else {
       history.pushState('', document.title, window.location.pathname);
       gallery.hide();

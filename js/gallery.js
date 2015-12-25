@@ -133,6 +133,7 @@ define(function() {
    * Отображаем текущую картинку
    * @param {number|string} index
    * @method setCurrentPicture
+   * @return {number}
    */
   Gallery.prototype.setCurrentPicture = function(index) {
     var picture;
@@ -141,6 +142,8 @@ define(function() {
       if (index <= this.pictures.length - 1) {
         this._currentImage = index;
         picture = this.pictures[this._currentImage];
+      } else {
+        return -1;
       }
     } else if (typeof index === 'string') {
       for (var i = 0; i < this.pictures.length; i++) {
@@ -150,11 +153,16 @@ define(function() {
           break;
         }
       }
+      if (!picture) {
+        history.pushState('', document.title, window.location.pathname);
+        return -1;
+      }
     }
 
     this._photo.src = picture.url;
     this._like.querySelector('.likes-count').textContent = picture.likes;
     this._comments.querySelector('.comments-count').textContent = picture.comments;
+    return 0;
   };
 
   /**
