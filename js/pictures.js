@@ -202,7 +202,7 @@ define([
     }
 
     container.appendChild(fragment);
-    _onHashChange();
+    _addPage();
   }
 
   /**
@@ -286,6 +286,7 @@ define([
         break;
     }
 
+    currentPage = 0;
     gallery.setPictures(filteredPictures);
     renderPictures(filteredPictures, 0, true);
     activeFilter = id;
